@@ -140,9 +140,9 @@ describe('Enum Consistency', () => {
 
   // -- PlanTier --
   describe('PlanTier', () => {
-    it('includes free, pro, agency, business, enterprise', () => {
-      const valid: PlanTier[] = ['free', 'pro', 'agency', 'business', 'enterprise'];
-      expect(valid).toHaveLength(5);
+    it('includes free, pro, agency, enterprise', () => {
+      const valid: PlanTier[] = ['free', 'pro', 'agency', 'enterprise'];
+      expect(valid).toHaveLength(4);
       valid.forEach((v) => expect(typeof v).toBe('string'));
     });
 

@@ -17,10 +17,15 @@ const URLS_TO_AUDIT = [
 
 async function pollUntilDone(
   client: VertaaUX,
-  jobId: string
+  jobId: string,
+  timeoutMs: number = 300000
 ): Promise<Audit> {
+  const startTime = Date.now();
   let result = await client.audits.retrieve(jobId);
   while (result.status === 'queued' || result.status === 'running') {
+    if (Date.now() - startTime > timeoutMs) {
+      throw new Error(`Audit ${jobId} timed out after ${timeoutMs / 1000}s`);
+    }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     result = await client.audits.retrieve(jobId);
   }

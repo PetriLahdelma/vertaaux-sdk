@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20]
+        node-version: [20, 22]
 
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +63,7 @@ jobs:
         run: |
           # Fetch the live OpenAPI spec and compare hash
           LIVE_HASH=$(curl -sf https://vertaaux.ai/api/openapi | shasum -a 256 | cut -d' ' -f1)
-          SDK_HASH=$(grep 'CONTRACT_SPEC_HASH' src/contract-version.ts | grep -o '[a-f0-9]\{64\}')
+          SDK_HASH=$(grep -A1 'CONTRACT_SPEC_HASH' src/contract-version.ts | grep -o '[a-f0-9]\{64\}')
 
           if [ -z "$LIVE_HASH" ]; then
             echo "WARN: Could not fetch live spec (API may be down). Skipping hash check."

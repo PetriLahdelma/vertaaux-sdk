@@ -22,13 +22,20 @@ async function main() {
   console.log(`Audit created: ${audit.job_id}`);
   console.log(`Status: ${audit.status}`);
 
-  // Poll for completion
+  // Poll for completion with timeout
+  const timeoutMs = 300000; // 5 minutes
+  const startTime = Date.now();
+
   console.log('Waiting for completion...');
   let result = await client.audits.retrieve(audit.job_id);
   while (result.status === 'queued' || result.status === 'running') {
+    if (Date.now() - startTime > timeoutMs) {
+      console.error('Audit timed out after 5 minutes');
+      process.exit(1);
+    }
     await new Promise((resolve) => setTimeout(resolve, 2000));
     result = await client.audits.retrieve(audit.job_id);
-    console.log(`  Progress: ${result.progress}%`);
+    console.log(`  Progress: ${result.progress ?? 0}%`);
   }
 
   // Display results

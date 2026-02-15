@@ -10,6 +10,6 @@
 /** Date when SDK types were last synced with the OpenAPI spec. */
 export const CONTRACT_SPEC_VERSION = '2026-02-15';
 
-/** SHA-256 hash of docs/vertaaux-api.yaml at time of last sync. */
+/** SHA-256 hash of the live OpenAPI spec at time of last sync. */
 export const CONTRACT_SPEC_HASH =
-  'sha256:9dc67b161cdedd24d9ce20de5fac9162294fa537964f3f2ab4c04f54a0e57870';
+  'sha256:582164db236a6c2c27e56110ccee03c3216e93e6a91caec7f7fba04e2cdef1ce';

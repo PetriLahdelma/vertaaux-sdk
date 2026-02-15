@@ -633,11 +633,9 @@ describe('HTTP Client Request Building', () => {
   });
 
   it('builds URL from baseUrl and path', async () => {
-    // new URL(path, baseUrl) resolves "/audits" relative to origin,
-    // so the SDK actually expects paths relative to the baseUrl origin.
     await client.request({ method: 'GET', path: '/audits' });
     const url = mockFetch.mock.calls[0][0];
-    expect(url).toBe('https://vertaaux.ai/audits');
+    expect(url).toBe('https://vertaaux.ai/api/v1/audits');
   });
 
   it('builds URL correctly with relative path (no leading slash)', async () => {

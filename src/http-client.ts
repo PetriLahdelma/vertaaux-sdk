@@ -47,6 +47,11 @@ export class HttpClient {
     this.timeout = config.timeout ?? DEFAULTS.timeout;
     this.maxRetries = config.maxRetries ?? DEFAULTS.maxRetries;
     this.fetchFn = config.fetch ?? fetch;
+    if (typeof this.fetchFn !== 'function') {
+      throw new Error(
+        'VertaaUX: No fetch implementation available. Pass a custom fetch function or use Node.js >= 18.'
+      );
+    }
   }
 
   async request<T>(options: RequestOptions): Promise<T> {
@@ -215,7 +220,9 @@ export class HttpClient {
     path: string,
     query?: Record<string, string | number | boolean | undefined>
   ): string {
-    const url = new URL(path, this.baseUrl);
+    const base = this.baseUrl.endsWith('/') ? this.baseUrl : this.baseUrl + '/';
+    const relativePath = path.startsWith('/') ? path.slice(1) : path;
+    const url = new URL(relativePath, base);
 
     if (query) {
       for (const [key, value] of Object.entries(query)) {

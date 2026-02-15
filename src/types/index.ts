@@ -161,7 +161,7 @@ export interface Audit {
   /** Audit mode */
   mode?: AuditMode;
   /** Job creation timestamp (ISO 8601) */
-  created_at: string;
+  created_at?: string;
   /** When analysis began */
   started_at?: string;
   /** When analysis completed */
@@ -169,9 +169,9 @@ export interface Audit {
   /** When analysis failed */
   failed_at?: string;
   /** Completion percentage 0-100 */
-  progress: number;
+  progress?: number;
   /** Version of ruleset used */
-  ruleset_version: string;
+  ruleset_version?: string;
   /** Audit scores (present if completed) */
   scores?: AuditScores;
   /** Legacy issues array (present if completed) */
@@ -324,23 +324,23 @@ export interface ScheduleCreateParams {
   /** Audit mode */
   mode?: AuditMode;
   /** Cron expression (e.g., '0 9 * * 1' for Mondays at 9am) */
-  cronExpression: string;
+  cron_expression: string;
   /** Human-readable name */
   name: string;
   /** Whether schedule is active */
   enabled?: boolean;
   /** Alert on audit failure */
-  alertOnFail?: boolean;
+  alert_on_fail?: boolean;
   /** Alert on score drop */
-  alertOnScoreDrop?: boolean;
+  alert_on_score_drop?: boolean;
   /** Score threshold for alerts */
-  scoreThreshold?: number;
+  score_threshold?: number;
   /** Webhook URL for notifications */
-  webhookUrl?: string;
+  webhook_url?: string;
   /** Comma-separated email recipients */
-  emailRecipients?: string;
+  email_recipients?: string;
   /** Organization ID if applicable */
-  organizationId?: string;
+  organization_id?: string;
 }
 
 /**
@@ -352,21 +352,21 @@ export interface ScheduleUpdateParams {
   /** Audit mode */
   mode?: AuditMode;
   /** Cron expression */
-  cronExpression?: string;
+  cron_expression?: string;
   /** Human-readable name */
   name?: string;
   /** Whether schedule is active */
   enabled?: boolean;
   /** Alert on audit failure */
-  alertOnFail?: boolean;
+  alert_on_fail?: boolean;
   /** Alert on score drop */
-  alertOnScoreDrop?: boolean;
+  alert_on_score_drop?: boolean;
   /** Score threshold for alerts */
-  scoreThreshold?: number;
+  score_threshold?: number;
   /** Webhook URL for notifications */
-  webhookUrl?: string;
+  webhook_url?: string;
   /** Email recipients for alerts */
-  emailRecipients?: string;
+  email_recipients?: string;
 }
 
 /**
@@ -400,7 +400,7 @@ export interface ScheduleCreateResponse {
 /**
  * User plan tier.
  */
-export type PlanTier = 'free' | 'pro' | 'agency' | 'business' | 'enterprise';
+export type PlanTier = 'free' | 'pro' | 'agency' | 'enterprise';
 
 /**
  * Quota and usage information.

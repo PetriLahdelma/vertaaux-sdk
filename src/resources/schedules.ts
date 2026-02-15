@@ -22,7 +22,7 @@ import type {
  * const { schedule } = await client.schedules.create({
  *   url: 'https://example.com',
  *   name: 'Weekly Audit',
- *   cronExpression: '0 9 * * 1',
+ *   cron_expression: '0 9 * * 1',
  * });
  * ```
  */
