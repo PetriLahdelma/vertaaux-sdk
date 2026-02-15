@@ -33,3 +33,48 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Security audit
+        run: npm audit --audit-level=moderate --omit=dev
+
+  contract-check:
+    runs-on: ubuntu-latest
+    name: Contract Validation
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check for secrets in source
+        run: npx vitest run tests/no-secrets.test.ts
+
+      - name: Run contract tests
+        run: npx vitest run tests/contract.test.ts
+
+      - name: Verify contract version hash
+        run: |
+          # Fetch the live OpenAPI spec and compare hash
+          LIVE_HASH=$(curl -sf https://vertaaux.ai/api/openapi | shasum -a 256 | cut -d' ' -f1)
+          SDK_HASH=$(grep 'CONTRACT_SPEC_HASH' src/contract-version.ts | grep -o '[a-f0-9]\{64\}')
+
+          if [ -z "$LIVE_HASH" ]; then
+            echo "WARN: Could not fetch live spec (API may be down). Skipping hash check."
+            exit 0
+          fi
+
+          if [ "$LIVE_HASH" != "$SDK_HASH" ]; then
+            echo "WARN: OpenAPI spec has changed since last SDK sync."
+            echo "  Live: sha256:$LIVE_HASH"
+            echo "  SDK:  sha256:$SDK_HASH"
+            echo "Consider re-syncing SDK types with the latest spec."
+          else
+            echo "Contract hash matches. SDK is in sync with live spec."
+          fi
