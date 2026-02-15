@@ -10,7 +10,7 @@
  *   spec at tests/fixtures/vertaaux-api.yaml and skip gracefully if absent.
  */
 
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 

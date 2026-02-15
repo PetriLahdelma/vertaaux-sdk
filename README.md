@@ -42,7 +42,7 @@ if (result.status === 'completed') {
 
 ```typescript
 const client = new VertaaUX({
-  apiKey: 'vtx_your_api_key',  // Required. Get yours at https://vertaaux.ai/dashboard/api-keys
+  apiKey: 'vx_test_your_api_key',  // Required. Get yours at https://vertaaux.ai/dashboard/api-keys
   baseUrl: 'https://...',      // Optional. Defaults to https://vertaaux.ai/api/v1
   timeout: 30000,              // Optional. Request timeout in ms (default: 30000)
   maxRetries: 2,               // Optional. Auto-retry on 429/5xx (default: 2)
