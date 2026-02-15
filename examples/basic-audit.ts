@@ -16,38 +16,47 @@ async function main() {
   console.log('Creating audit...');
   const audit = await client.audits.create({
     url: 'https://example.com',
-    checks: ['wcag-aa', 'color-contrast', 'keyboard-nav'],
+    mode: 'standard',
   });
 
-  console.log(`Audit created: ${audit.id}`);
+  console.log(`Audit created: ${audit.job_id}`);
   console.log(`Status: ${audit.status}`);
 
-  // Wait for completion
+  // Poll for completion with timeout
+  const timeoutMs = 300000; // 5 minutes
+  const startTime = Date.now();
+
   console.log('Waiting for completion...');
-  const completed = await client.audits.waitForCompletion(audit.id);
+  let result = await client.audits.retrieve(audit.job_id);
+  while (result.status === 'queued' || result.status === 'running') {
+    if (Date.now() - startTime > timeoutMs) {
+      console.error('Audit timed out after 5 minutes');
+      process.exit(1);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    result = await client.audits.retrieve(audit.job_id);
+    console.log(`  Progress: ${result.progress ?? 0}%`);
+  }
 
   // Display results
-  if (completed.status === 'completed' && completed.summary) {
+  if (result.status === 'completed' && result.scores) {
     console.log('\n--- Results ---');
-    console.log(`Score: ${completed.summary.score}/100`);
-    console.log(`Total issues: ${completed.summary.issues}`);
-    console.log(`  Critical: ${completed.summary.critical}`);
-    console.log(`  Serious: ${completed.summary.serious}`);
-    console.log(`  Moderate: ${completed.summary.moderate}`);
-    console.log(`  Minor: ${completed.summary.minor}`);
+    console.log(`Overall score: ${result.scores.overall}/100`);
+    console.log(`  UX: ${result.scores.ux}`);
+    console.log(`  Accessibility: ${result.scores.accessibility}`);
+    console.log(`  Information Architecture: ${result.scores.information_architecture}`);
+    console.log(`  Performance: ${result.scores.performance}`);
 
-    if (completed.issues && completed.issues.length > 0) {
-      console.log('\n--- Top Issues ---');
-      completed.issues.slice(0, 5).forEach((issue, i) => {
-        console.log(`\n${i + 1}. [${issue.severity.toUpperCase()}] ${issue.rule}`);
+    if (result.issues && result.issues.length > 0) {
+      console.log(`\n--- Issues (${result.issues.length} total) ---`);
+      result.issues.slice(0, 5).forEach((issue, i) => {
+        console.log(`\n${i + 1}. [${issue.severity.toUpperCase()}] ${issue.category}`);
         console.log(`   ${issue.description}`);
-        if (issue.aiSuggestion) {
-          console.log(`   Fix: ${issue.aiSuggestion}`);
-        }
+        console.log(`   Fix: ${issue.recommendation}`);
       });
     }
-  } else if (completed.status === 'failed') {
-    console.error(`Audit failed: ${completed.error}`);
+  } else if (result.status === 'failed') {
+    console.error(`Audit failed: ${result.error}`);
     process.exit(1);
   }
 }
