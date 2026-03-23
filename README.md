@@ -2,20 +2,20 @@
 
 Official TypeScript SDK for [VertaaUX.ai](https://vertaaux.ai) -- AI-powered UX and accessibility auditing.
 
-[![npm version](https://img.shields.io/npm/v/vertaaux-sdk.svg)](https://www.npmjs.com/package/vertaaux-sdk)
+[![npm version](https://img.shields.io/npm/v/%40vertaaux/sdk.svg)](https://www.npmjs.com/package/@vertaaux/sdk)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
 ```bash
-npm install vertaaux-sdk
+npm install @vertaaux/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { VertaaUX } from 'vertaaux-sdk';
+import { VertaaUX } from '@vertaaux/sdk';
 
 const client = new VertaaUX({ apiKey: process.env.VERTAAUX_API_KEY! });
 
@@ -97,7 +97,7 @@ import {
   ConnectionError,
   PermissionError,
   isVertaaUXError,
-} from 'vertaaux-sdk';
+} from '@vertaaux/sdk';
 
 try {
   const audit = await client.audits.create({ url: 'https://example.com' });
@@ -161,7 +161,7 @@ jobs:
           node-version: 20
 
       - name: Install SDK
-        run: npm install vertaaux-sdk
+        run: npm install @vertaaux/sdk
 
       - name: Run VertaaUX Audit
         uses: actions/github-script@v7
@@ -169,7 +169,7 @@ jobs:
           VERTAAUX_API_KEY: ${{ secrets.VERTAAUX_API_KEY }}
         with:
           script: |
-            const { VertaaUX } = require('vertaaux-sdk');
+            const { VertaaUX } = require('@vertaaux/sdk');
             const client = new VertaaUX({ apiKey: process.env.VERTAAUX_API_KEY });
 
             const audit = await client.audits.create({
@@ -213,7 +213,7 @@ import type {
   Engine,
   Patch,
   VerificationResult,
-} from 'vertaaux-sdk';
+} from '@vertaaux/sdk';
 ```
 
 ## Examples

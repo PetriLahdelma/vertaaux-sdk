@@ -1,11 +1,11 @@
 /**
- * vertaaux-sdk - Official VertaaUX SDK for Node.js
+ * @vertaaux/sdk - Official VertaaUX SDK for Node.js
  *
  * A Stripe-style resource-based API client for UX auditing and remediation.
  *
  * @example
  * ```typescript
- * import { VertaaUX } from 'vertaaux-sdk';
+ * import { VertaaUX } from '@vertaaux/sdk';
  *
  * const client = new VertaaUX({ apiKey: process.env.VERTAAUX_API_KEY });
  * const audit = await client.audits.create({ url: 'https://example.com' });

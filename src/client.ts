@@ -19,7 +19,7 @@ import {
  *
  * @example
  * ```typescript
- * import { VertaaUX } from 'vertaaux-sdk';
+ * import { VertaaUX } from '@vertaaux/sdk';
  *
  * const client = new VertaaUX({
  *   apiKey: process.env.VERTAAUX_API_KEY!,
