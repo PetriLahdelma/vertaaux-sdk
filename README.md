@@ -6,6 +6,19 @@ Official TypeScript SDK for [VertaaUX.ai](https://vertaaux.ai) -- AI-powered UX 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+## Why VertaaUX?
+
+Most UX auditing is manual, slow, and inconsistent. VertaaUX runs AI-powered audits that score your pages across accessibility, usability, information architecture, and performance -- then generates actionable remediation patches you can apply directly.
+
+The SDK lets you integrate this into your workflow programmatically:
+
+- **CI/CD gates** -- fail builds when accessibility scores drop below your threshold
+- **Scheduled monitoring** -- track UX quality across deploys with recurring audits
+- **Automated remediation** -- generate and verify code patches for detected issues
+- **Batch analysis** -- audit hundreds of pages in parallel with auto-pagination
+
+Zero runtime dependencies. Full TypeScript types. Stripe-style resource API.
+
 ## Installation
 
 ```bash
@@ -226,4 +239,4 @@ See [`/examples`](./examples) for complete integration patterns:
 
 ## License
 
-MIT (c) [Petri Lahdelma](https://github.com/PetriLahdelma)
+MIT (c) [VertaaUX](https://vertaaux.ai)
