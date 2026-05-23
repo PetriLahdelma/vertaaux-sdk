@@ -105,6 +105,7 @@ export class HttpClient {
     const baseDelay = DEFAULTS.baseDelayMs;
     const maxDelay = DEFAULTS.maxDelayMs;
     const timeoutMs = options.timeoutMs ?? this.timeout;
+    let lastError: unknown = undefined;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       // Per-attempt fresh combined signal (D-05). A shared signal across
@@ -130,6 +131,7 @@ export class HttpClient {
 
         return this.handleErrorResponse(response);
       } catch (error) {
+        lastError = error;
         if (error instanceof VertaaUXError) {
           throw error;
         }
@@ -142,12 +144,13 @@ export class HttpClient {
         }
 
         if (error instanceof Error && error.name === 'AbortError') {
-          throw new ConnectionError(`Request timeout after ${timeoutMs}ms`);
+          throw new ConnectionError(`Request timeout after ${timeoutMs}ms`, error);
         }
 
         if (this.isNetworkError(error)) {
           throw new ConnectionError(
-            error instanceof Error ? error.message : 'Network request failed'
+            error instanceof Error ? error.message : 'Network request failed',
+            error instanceof Error ? error : undefined
           );
         }
 
@@ -162,7 +165,7 @@ export class HttpClient {
       }
     }
 
-    throw new ConnectionError('Max retries exceeded');
+    throw new ConnectionError('Max retries exceeded', lastError);
   }
 
   private async executeRequest(options: RequestOptions): Promise<Response> {

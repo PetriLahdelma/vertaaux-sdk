@@ -31,9 +31,10 @@ export class VertaaUXError extends Error {
       code?: string;
       statusCode?: number;
       requestId?: string;
-    }
+    },
+    cause?: unknown
   ) {
-    super(message);
+    super(message, cause === undefined ? undefined : { cause });
     this.name = 'VertaaUXError';
     this.type = type;
     this.code = options?.code;
@@ -50,12 +51,17 @@ export class VertaaUXError extends Error {
  * Thrown when authentication fails (401).
  */
 export class AuthenticationError extends VertaaUXError {
-  constructor(message: string, requestId?: string) {
-    super(message, 'authentication_error', {
-      code: 'invalid_api_key',
-      statusCode: 401,
-      requestId,
-    });
+  constructor(message: string, requestId?: string, cause?: unknown) {
+    super(
+      message,
+      'authentication_error',
+      {
+        code: 'invalid_api_key',
+        statusCode: 401,
+        requestId,
+      },
+      cause
+    );
     this.name = 'AuthenticationError';
   }
 }
@@ -68,13 +74,19 @@ export class RateLimitError extends VertaaUXError {
 
   constructor(
     message: string,
-    options?: { retryAfter?: number; requestId?: string }
+    options?: { retryAfter?: number; requestId?: string },
+    cause?: unknown
   ) {
-    super(message, 'rate_limit_error', {
-      code: 'rate_limit_exceeded',
-      statusCode: 429,
-      requestId: options?.requestId,
-    });
+    super(
+      message,
+      'rate_limit_error',
+      {
+        code: 'rate_limit_exceeded',
+        statusCode: 429,
+        requestId: options?.requestId,
+      },
+      cause
+    );
     this.name = 'RateLimitError';
     this.retryAfter = options?.retryAfter;
   }
@@ -88,13 +100,19 @@ export class NotFoundError extends VertaaUXError {
 
   constructor(
     message: string,
-    options?: { resource?: string; requestId?: string }
+    options?: { resource?: string; requestId?: string },
+    cause?: unknown
   ) {
-    super(message, 'not_found_error', {
-      code: 'not_found',
-      statusCode: 404,
-      requestId: options?.requestId,
-    });
+    super(
+      message,
+      'not_found_error',
+      {
+        code: 'not_found',
+        statusCode: 404,
+        requestId: options?.requestId,
+      },
+      cause
+    );
     this.name = 'NotFoundError';
     this.resource = options?.resource;
   }
@@ -113,13 +131,19 @@ export class ValidationError extends VertaaUXError {
       param?: string;
       errors?: Array<{ field: string; message: string }>;
       requestId?: string;
-    }
+    },
+    cause?: unknown
   ) {
-    super(message, 'validation_error', {
-      code: 'validation_error',
-      statusCode: 400,
-      requestId: options?.requestId,
-    });
+    super(
+      message,
+      'validation_error',
+      {
+        code: 'validation_error',
+        statusCode: 400,
+        requestId: options?.requestId,
+      },
+      cause
+    );
     this.name = 'ValidationError';
     this.param = options?.param;
     this.errors = options?.errors;
@@ -133,13 +157,19 @@ export class APIError extends VertaaUXError {
   constructor(
     message: string,
     statusCode: number,
-    options?: { code?: string; requestId?: string }
+    options?: { code?: string; requestId?: string },
+    cause?: unknown
   ) {
-    super(message, 'api_error', {
-      code: options?.code ?? 'internal_error',
-      statusCode,
-      requestId: options?.requestId,
-    });
+    super(
+      message,
+      'api_error',
+      {
+        code: options?.code ?? 'internal_error',
+        statusCode,
+        requestId: options?.requestId,
+      },
+      cause
+    );
     this.name = 'APIError';
   }
 }
@@ -148,12 +178,17 @@ export class APIError extends VertaaUXError {
  * Thrown when an idempotency key conflict occurs (409).
  */
 export class IdempotencyError extends VertaaUXError {
-  constructor(message: string, requestId?: string) {
-    super(message, 'idempotency_error', {
-      code: 'idempotency_key_conflict',
-      statusCode: 409,
-      requestId,
-    });
+  constructor(message: string, requestId?: string, cause?: unknown) {
+    super(
+      message,
+      'idempotency_error',
+      {
+        code: 'idempotency_key_conflict',
+        statusCode: 409,
+        requestId,
+      },
+      cause
+    );
     this.name = 'IdempotencyError';
   }
 }
@@ -162,8 +197,8 @@ export class IdempotencyError extends VertaaUXError {
  * Thrown when a network connection cannot be established.
  */
 export class ConnectionError extends VertaaUXError {
-  constructor(message: string) {
-    super(message, 'connection_error', { code: 'connection_failed' });
+  constructor(message: string, cause?: unknown) {
+    super(message, 'connection_error', { code: 'connection_failed' }, cause);
     this.name = 'ConnectionError';
   }
 }
@@ -172,12 +207,17 @@ export class ConnectionError extends VertaaUXError {
  * Thrown when permission is denied (403).
  */
 export class PermissionError extends VertaaUXError {
-  constructor(message: string, requestId?: string) {
-    super(message, 'permission_error', {
-      code: 'forbidden',
-      statusCode: 403,
-      requestId,
-    });
+  constructor(message: string, requestId?: string, cause?: unknown) {
+    super(
+      message,
+      'permission_error',
+      {
+        code: 'forbidden',
+        statusCode: 403,
+        requestId,
+      },
+      cause
+    );
     this.name = 'PermissionError';
   }
 }
