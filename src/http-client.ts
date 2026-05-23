@@ -25,6 +25,48 @@ const DEFAULTS = {
 } as const;
 
 /**
+ * Compose a caller-supplied AbortSignal with a per-attempt timeout into a
+ * single AbortSignal usable by `fetch(url, { signal })`. Uses the manual
+ * addEventListener pattern (no polyfill ceremony, no [SUS] dependency);
+ * works on every modern runtime with native AbortController support.
+ *
+ * Returns the combined signal plus a `cleanup` callback the caller MUST
+ * invoke in a try/finally so the timeout is cleared and the user-signal
+ * listener is removed even on the success path.
+ */
+function makeCombinedSignal(
+  userSignal: AbortSignal | undefined,
+  timeoutMs: number
+): { signal: AbortSignal; cleanup: () => void } {
+  const controller = new AbortController();
+  const timer = setTimeout(() => {
+    controller.abort(new Error(`Request timed out after ${timeoutMs}ms`));
+  }, timeoutMs);
+
+  let onUserAbort: (() => void) | null = null;
+  if (userSignal) {
+    if (userSignal.aborted) {
+      controller.abort(userSignal.reason);
+    } else {
+      onUserAbort = () => {
+        controller.abort(userSignal.reason);
+      };
+      userSignal.addEventListener('abort', onUserAbort, { once: true });
+    }
+  }
+
+  return {
+    signal: controller.signal,
+    cleanup: () => {
+      clearTimeout(timer);
+      if (onUserAbort) {
+        userSignal?.removeEventListener('abort', onUserAbort);
+      }
+    },
+  };
+}
+
+/**
  * Low-level HTTP client that handles authentication, request building,
  * response parsing, and automatic retries with exponential backoff.
  *
@@ -62,10 +104,15 @@ export class HttpClient {
     const maxRetries = this.maxRetries;
     const baseDelay = DEFAULTS.baseDelayMs;
     const maxDelay = DEFAULTS.maxDelayMs;
+    const timeoutMs = options.timeoutMs ?? this.timeout;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      // Per-attempt fresh combined signal (D-05). A shared signal across
+      // retries would leave the second attempt already-aborted on a slow
+      // first attempt.
+      const { signal, cleanup } = makeCombinedSignal(options.signal, timeoutMs);
       try {
-        const response = await this.executeRequest(options);
+        const response = await this.executeRequest({ ...options, signal });
 
         if (response.ok) {
           return this.parseResponse<T>(response);
@@ -76,6 +123,7 @@ export class HttpClient {
 
         if (isRetryable && hasRetriesLeft) {
           const delay = this.calculateDelay(response, attempt, baseDelay, maxDelay);
+          cleanup();
           await this.sleep(delay);
           continue;
         }
@@ -88,12 +136,13 @@ export class HttpClient {
 
         if (this.isNetworkError(error) && attempt < maxRetries) {
           const delay = this.calculateDelay(null, attempt, baseDelay, maxDelay);
+          cleanup();
           await this.sleep(delay);
           continue;
         }
 
         if (error instanceof Error && error.name === 'AbortError') {
-          throw new ConnectionError(`Request timeout after ${this.timeout}ms`);
+          throw new ConnectionError(`Request timeout after ${timeoutMs}ms`);
         }
 
         if (this.isNetworkError(error)) {
@@ -103,6 +152,13 @@ export class HttpClient {
         }
 
         throw error;
+      } finally {
+        // Defense in depth: clearTimeout on an already-cleared timer is a
+        // safe no-op; removeEventListener on an already-removed listener
+        // is also safe. cleanup MUST run on the success path too (D-04 /
+        // Pitfall 1) so the SDK does not leak timers in long-running
+        // consumers (Next.js server, CLI poll loops).
+        cleanup();
       }
     }
 
@@ -113,23 +169,15 @@ export class HttpClient {
     const url = this.buildUrl(options.path, options.query);
     const headers = this.buildHeaders(options.idempotencyKey);
 
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
-
-    try {
-      const response = await this.fetchFn(url, {
-        method: options.method,
-        headers,
-        body: options.body ? JSON.stringify(options.body) : undefined,
-        signal: controller.signal,
-      });
-
-      clearTimeout(timeoutId);
-      return response;
-    } catch (error) {
-      clearTimeout(timeoutId);
-      throw error;
-    }
+    // Combined signal is composed by requestWithRetry via
+    // makeCombinedSignal; this method is now a thin fetch wrapper that
+    // simply forwards the threaded signal.
+    return this.fetchFn(url, {
+      method: options.method,
+      headers,
+      body: options.body ? JSON.stringify(options.body) : undefined,
+      signal: options.signal,
+    });
   }
 
   private async parseResponse<T>(response: Response): Promise<T> {
