@@ -1,6 +1,6 @@
 {
   "name": "@vertaaux/sdk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Official TypeScript SDK for VertaaUX.ai — AI-powered UX and accessibility auditing",
   "type": "module",
   "main": "./dist/index.cjs",

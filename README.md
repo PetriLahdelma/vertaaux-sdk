@@ -57,10 +57,47 @@ if (result.status === 'completed') {
 const client = new VertaaUX({
   apiKey: 'vx_test_your_api_key',  // Required. Get yours at https://vertaaux.ai/dashboard/api-keys
   baseUrl: 'https://...',      // Optional. Defaults to https://vertaaux.ai/api/v1
-  timeout: 30000,              // Optional. Request timeout in ms (default: 30000)
+  timeout: 120000,             // Optional. Request timeout in ms (default: 120000)
   maxRetries: 2,               // Optional. Auto-retry on 429/5xx (default: 2)
   fetch: customFetch,          // Optional. Custom fetch implementation
 });
+```
+
+## Cancellation and Per-Request Timeout
+
+Every SDK method accepts an optional `CallOptions` final argument:
+
+```typescript
+import { VertaaUX, ConnectionError, type CallOptions } from '@vertaaux/sdk';
+
+const client = new VertaaUX({ apiKey: process.env.VERTAAUX_API_KEY! });
+
+// Cancel mid-flight from the caller
+const controller = new AbortController();
+const audit = await client.audits.create(
+  { url: 'https://example.com' },
+  { signal: controller.signal, timeoutMs: 60_000 },
+);
+
+// Elsewhere:
+controller.abort();  // throws ConnectionError on the in-flight call
+```
+
+The `timeoutMs` value overrides the global `config.timeout` for this call
+only. Each retry attempt gets a fresh budget; the overall envelope is
+`timeoutMs * (maxRetries + 1) + sum(backoffs)`.
+
+When the SDK wraps an underlying error, the original is preserved on
+`err.cause`:
+
+```typescript
+try {
+  await client.audits.retrieve('job_123', { timeoutMs: 100 });
+} catch (err) {
+  if (err instanceof ConnectionError && err.cause instanceof Error) {
+    console.error('underlying:', err.cause.name);  // "AbortError" or TypeError
+  }
+}
 ```
 
 ## Resources
