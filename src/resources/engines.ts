@@ -6,6 +6,7 @@
 
 import type { HttpClient } from '../http-client';
 import type { EngineListResponse } from '../types';
+import type { CallOptions } from '../types/config';
 
 /**
  * Engines API - List available audit engines.
@@ -19,10 +20,12 @@ import type { EngineListResponse } from '../types';
 export class EnginesAPI {
   constructor(private readonly http: HttpClient) {}
 
-  async list(): Promise<EngineListResponse> {
+  async list(options?: CallOptions): Promise<EngineListResponse> {
     return this.http.request<EngineListResponse>({
       method: 'GET',
       path: '/engines',
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 }

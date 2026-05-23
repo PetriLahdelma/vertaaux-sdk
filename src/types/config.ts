@@ -35,6 +35,30 @@ export interface VertaaUXConfig {
 }
 
 /**
+ * Per-request options accepted by every public SDK method.
+ *
+ * Additive: existing callers omitting this argument continue to work
+ * unchanged. Passing `signal` lets the caller cancel mid-flight; passing
+ * `timeoutMs` overrides the global `config.timeout` for this call only.
+ */
+export interface CallOptions {
+  /**
+   * Caller-supplied AbortSignal. Forwarded into the SDK's internal
+   * AbortController via the manual addEventListener pattern (no polyfill,
+   * no [SUS] packages).
+   */
+  signal?: AbortSignal;
+
+  /**
+   * Hard cap on the request in milliseconds. Overrides the global
+   * `config.timeout` for this call only. Each retry attempt receives a
+   * fresh budget; the overall envelope is
+   * `(timeoutMs × (maxRetries + 1)) + sum(backoffs)`.
+   */
+  timeoutMs?: number;
+}
+
+/**
  * Options for making HTTP requests.
  * @internal
  */
@@ -64,4 +88,7 @@ export interface RequestOptions {
    * Recommended for POST requests that create resources.
    */
   idempotencyKey?: string;
+
+  signal?: AbortSignal; // PORT-01 internal threading
+  timeoutMs?: number; // PORT-01 internal threading
 }

@@ -18,7 +18,7 @@
 export { VertaaUX } from './client';
 
 // Configuration types
-export type { VertaaUXConfig } from './types/config';
+export type { VertaaUXConfig, CallOptions } from './types/config';
 
 // Error classes
 export {

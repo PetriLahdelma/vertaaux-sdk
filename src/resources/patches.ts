@@ -6,6 +6,7 @@
 
 import type { HttpClient } from '../http-client';
 import type { PatchGenerateParams, PatchGenerateResponse } from '../types';
+import type { CallOptions } from '../types/config';
 
 /**
  * Patches API - Generate remediation patches.
@@ -22,11 +23,16 @@ import type { PatchGenerateParams, PatchGenerateResponse } from '../types';
 export class PatchesAPI {
   constructor(private readonly http: HttpClient) {}
 
-  async generate(params: PatchGenerateParams): Promise<PatchGenerateResponse> {
+  async generate(
+    params: PatchGenerateParams,
+    options?: CallOptions
+  ): Promise<PatchGenerateResponse> {
     return this.http.request<PatchGenerateResponse>({
       method: 'POST',
       path: '/patch',
       body: params,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 }

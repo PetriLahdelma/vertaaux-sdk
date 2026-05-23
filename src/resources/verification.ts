@@ -6,6 +6,7 @@
 
 import type { HttpClient } from '../http-client';
 import type { VerifyParams, VerifyResponse } from '../types';
+import type { CallOptions } from '../types/config';
 
 /**
  * Verification API - Verify patch effectiveness.
@@ -22,11 +23,16 @@ import type { VerifyParams, VerifyResponse } from '../types';
 export class VerificationAPI {
   constructor(private readonly http: HttpClient) {}
 
-  async run(params: VerifyParams): Promise<VerifyResponse> {
+  async run(
+    params: VerifyParams,
+    options?: CallOptions
+  ): Promise<VerifyResponse> {
     return this.http.request<VerifyResponse>({
       method: 'POST',
       path: '/verify',
       body: params,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 }

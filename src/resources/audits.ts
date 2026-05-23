@@ -11,12 +11,13 @@ import type {
   AuditListParams,
   PaginatedResponse,
 } from '../types';
+import type { CallOptions } from '../types/config';
 import { AutoPaginatingList, autoPaginate, type AutoPaginateConfig } from '../pagination';
 
 /**
  * Options for creating an audit.
  */
-export interface AuditCreateOptions {
+export interface AuditCreateOptions extends CallOptions {
   /**
    * Idempotency key for safe request retries.
    */
@@ -56,48 +57,64 @@ export class AuditsAPI {
       path: '/audit',
       body: params,
       idempotencyKey: options?.idempotencyKey,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
   /**
    * Get audit status and results by job ID.
    */
-  async retrieve(jobId: string): Promise<Audit> {
+  async retrieve(jobId: string, options?: CallOptions): Promise<Audit> {
     return this.http.request<Audit>({
       method: 'GET',
       path: `/audit/${encodeURIComponent(jobId)}`,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
   /**
    * List audits with pagination.
    */
-  async list(params?: AuditListParams): Promise<PaginatedResponse<Audit>> {
+  async list(
+    params?: AuditListParams,
+    options?: CallOptions
+  ): Promise<PaginatedResponse<Audit>> {
     return this.http.request<PaginatedResponse<Audit>>({
       method: 'GET',
       path: '/audits',
       query: params as Record<string, string | number | undefined>,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
   /**
    * Get a single audit by ID.
    */
-  async get(id: string): Promise<Audit> {
+  async get(id: string, options?: CallOptions): Promise<Audit> {
     return this.http.request<Audit>({
       method: 'GET',
       path: `/audits/${encodeURIComponent(id)}`,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
   /**
    * Create an audit with LLM-enhanced analysis.
    */
-  async createWithLLM(params: AuditCreateParams): Promise<Audit> {
+  async createWithLLM(
+    params: AuditCreateParams,
+    options?: CallOptions
+  ): Promise<Audit> {
     return this.http.request<Audit>({
       method: 'POST',
       path: '/llm/audit',
       body: params,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 

@@ -13,6 +13,7 @@ import type {
   ScheduleListResponse,
   ScheduleCreateResponse,
 } from '../types';
+import type { CallOptions } from '../types/config';
 
 /**
  * Schedules API - Create and manage scheduled audits.
@@ -29,44 +30,61 @@ import type {
 export class SchedulesAPI {
   constructor(private readonly http: HttpClient) {}
 
-  async create(params: ScheduleCreateParams): Promise<ScheduleCreateResponse> {
+  async create(
+    params: ScheduleCreateParams,
+    options?: CallOptions
+  ): Promise<ScheduleCreateResponse> {
     return this.http.request<ScheduleCreateResponse>({
       method: 'POST',
       path: '/schedules',
       body: params,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
-  async retrieve(scheduleId: string): Promise<Schedule> {
+  async retrieve(scheduleId: string, options?: CallOptions): Promise<Schedule> {
     return this.http.request<Schedule>({
       method: 'GET',
       path: `/schedules/${encodeURIComponent(scheduleId)}`,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
-  async list(params?: ScheduleListParams): Promise<ScheduleListResponse> {
+  async list(
+    params?: ScheduleListParams,
+    options?: CallOptions
+  ): Promise<ScheduleListResponse> {
     return this.http.request<ScheduleListResponse>({
       method: 'GET',
       path: '/schedules',
       query: params as Record<string, string | boolean | undefined>,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
   async update(
     scheduleId: string,
-    params: ScheduleUpdateParams
+    params: ScheduleUpdateParams,
+    options?: CallOptions
   ): Promise<Schedule> {
     return this.http.request<Schedule>({
       method: 'PATCH',
       path: `/schedules/${encodeURIComponent(scheduleId)}`,
       body: params,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 
-  async delete(scheduleId: string): Promise<void> {
+  async delete(scheduleId: string, options?: CallOptions): Promise<void> {
     await this.http.request<void>({
       method: 'DELETE',
       path: `/schedules/${encodeURIComponent(scheduleId)}`,
+      signal: options?.signal,
+      timeoutMs: options?.timeoutMs,
     });
   }
 }
