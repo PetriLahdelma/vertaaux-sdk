@@ -18,7 +18,7 @@ import {
 
 const DEFAULTS = {
   baseUrl: 'https://vertaaux.ai/api/v1',
-  timeout: 30000,
+  timeout: 120000,
   maxRetries: 2,
   baseDelayMs: 300,
   maxDelayMs: 30000,

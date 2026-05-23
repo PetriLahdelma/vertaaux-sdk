@@ -16,7 +16,7 @@ export interface VertaaUXConfig {
 
   /**
    * Request timeout in milliseconds.
-   * @default 30000
+   * @default 120000
    */
   timeout?: number;
 

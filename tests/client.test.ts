@@ -148,7 +148,7 @@ describe('VertaaUX Client Initialization', () => {
       apiKey: 'vx_test_key',
       fetch: vi.fn() as unknown as typeof fetch,
     });
-    expect(client.config.timeout).toBe(30000);
+    expect(client.config.timeout).toBe(120000);
   });
 
   it('uses default maxRetries when not provided', () => {
